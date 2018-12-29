@@ -33,7 +33,7 @@ namespace TrackerLibrary
         public static void InitializeConnection(DatabaseType connectionType)
         {
            
-
+            //sql connection
             if (connectionType == DatabaseType.Sql)
             {
                 SqlConnector sql = new SqlConnector();
