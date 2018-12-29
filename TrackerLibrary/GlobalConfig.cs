@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TrackerLibrary.DataAccess;
+using TrackerLibrary.DataAcess;
 
 namespace TrackerLibrary
 {
@@ -15,20 +18,39 @@ namespace TrackerLibrary
         /// sqlConnector and text.
         /// 
         /// LIST:  public static List<IDataConnection> Connections { get; private set; }
-        /// 
+        /// Eventually removed the list, and just keep one connection 
         /// </summary>
         public static IDataConnection Connection { get; private set; }
         
-        public static void InitializeConnection(bool database, bool textFiles)
+
+        //Here we make the first connection
+        /// <summary>
+        /// THis initiliaser is used in TrackerUI program.cs
+        /// based on the selection there, it establishes the connection 
+        /// and create an object of this connection
+        /// </summary>
+        /// <param name="connectionType"></param>
+        public static void InitializeConnection(DatabaseType connectionType)
         {
-            if (database)
+           
+
+            if (connectionType == DatabaseType.Sql)
             {
+                SqlConnector sql = new SqlConnector();
+                Connection = sql;
+            }
+            if (connectionType == DatabaseType.TextFile)
+            {
+                TextConnector text = new TextConnector();
+                Connection = text;
 
             }
-            if (textFiles)
-            {
+        }
 
-            }
+        //to get the location defined in app.config Tracker.UI
+        public static string CnnString(string name)
+        {
+            return ConfigurationManager.ConnectionStrings[name].ConnectionString;
         }
     }
 }

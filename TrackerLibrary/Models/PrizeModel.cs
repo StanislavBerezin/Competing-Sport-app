@@ -4,14 +4,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TrackerLibrary
+namespace TrackerLibrary.Models
 {
     public class PrizeModel
     {
+        public int Id { get; set; }
         public int PlaceNumber { get; set; }
         public string PlaceName { get; set; }
         public decimal PrizeAmount { get; set; }
         public double PrizePercentage{ get; set; }
+
+        public PrizeModel()
+        {
+
+        }
 
         /// <summary>
         /// performs different checks when making an object of PrizeModel
