@@ -14,9 +14,12 @@ namespace TrackerUI
 {
     public partial class CreatePrizeForm : Form
     {
-        public CreatePrizeForm()
+        IPrizeRequester callingForm;
+
+        public CreatePrizeForm(IPrizeRequester caller)
         {
             InitializeComponent();
+            callingForm = caller;
         }
 
         private void addPrizeButton_Click(object sender, EventArgs e)
@@ -35,6 +38,11 @@ namespace TrackerUI
                 //allows us to have this.
                 GlobalConfig.Connection.CreatePrize(model);
 
+                //because we make an instance of IPrizeRequester calling form, which has a method PrizeComplete
+                //that accepts prizeModel, we can pass it through
+                callingForm.PrizeComplete(model);
+
+                this.Close();
                 //Clear form of previous inputs
                 placeNameValue.Text = "";
                 placeNumberValue.Text = "";

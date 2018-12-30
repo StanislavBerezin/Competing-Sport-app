@@ -66,20 +66,7 @@ namespace TrackerLibrary.DataAccess
             }
         }
 
-        /// <summary>
-        /// querying the database to return all persons
-        /// </summary>
-        /// <returns></returns>
-        public List<PersonModel> GetPerson_All()
-        {
-            List<PersonModel> output;
-            using (IDbConnection connection = new System.Data.SqlClient.SqlConnection(GlobalConfig.CnnString(db)))
-            {
-                output = connection.Query<PersonModel>("dbo.sqPeople_GetAll").ToList();
 
-            }
-            return output;
-        }
         /// <summary>
         /// Essentially we insert the team first, and a team has team members which already exists in our database
         /// When we create a team we know what people are in it, however, ID's related to team are not assigned,
@@ -115,5 +102,43 @@ namespace TrackerLibrary.DataAccess
                 return model;
             }
         }
+
+   
+        /// <summary>
+        /// querying the database to return all persons
+        /// </summary>
+        /// <returns></returns>
+        public List<PersonModel> GetPerson_All()
+        {
+            List<PersonModel> output;
+            using (IDbConnection connection = new System.Data.SqlClient.SqlConnection(GlobalConfig.CnnString(db)))
+            {
+                output = connection.Query<PersonModel>("dbo.sqPeople_GetAll").ToList();
+
+            }
+            return output;
+        }
+
+        public List<TeamModel> GetTeam_All()
+        {
+            List<TeamModel> output;
+
+            using (IDbConnection connection = new System.Data.SqlClient.SqlConnection(GlobalConfig.CnnString(db)))
+            {
+                output = connection.Query<TeamModel>("dbo.spTeam_GetAll").ToList();
+
+                foreach (TeamModel team in output)
+                {
+                    var p = new DynamicParameters();
+                    p.Add("@TeamId", team.Id);
+
+                    team.TeamMembers = connection.Query<PersonModel>("dbo.spTeamMembers_GetByTeam", p, commandType: CommandType.StoredProcedure).ToList();
+                }
+
+            }
+
+            return output;
+        }
     }
+    
 }

@@ -92,7 +92,12 @@ namespace TrackerLibrary.DataAccess.TextHelpers
 
             return output;
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="lines"></param>
+        /// <param name="peopleFileName"> This parameter is the filename where team members are</param>
+        /// <returns></returns>
         public static List<TeamModel> ConvertToTeamModels(this List<string> lines, string peopleFileName)
         {
             List<TeamModel> Output = new List<TeamModel>();
@@ -107,6 +112,7 @@ namespace TrackerLibrary.DataAccess.TextHelpers
                 t.Id = int.Parse(cols[0]);
                 t.TeamName = cols[1];
 
+                //considering we know where players are located so we r gonna split
                 string[] personIds = cols[2].Split('|');
 
                 //Take the list of people in the text file and search for it and filter WHERE the id of the person
