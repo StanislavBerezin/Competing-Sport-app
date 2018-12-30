@@ -14,6 +14,9 @@ namespace TrackerLibrary.DataAccess
 
     public class SqlConnector : IDataConnection
     {
+
+     
+
         //basically its a public method of type PrizeModel who should return the model (object)
         public PrizeModel CreatePrize(PrizeModel model)
         {
@@ -33,7 +36,29 @@ namespace TrackerLibrary.DataAccess
 
                 //Using procedure to insert it, to avoid SQL injections, we specify the commandType to be a procedure
                 //defined in sql
-                connection.Execute("dbo.SpPrizes_Insert", p, commandType: CommandType.StoredProcedure);
+                connection.Execute("dbo.spPrizes_Insert", p, commandType: CommandType.StoredProcedure);
+
+                model.Id = p.Get<int>("@id");
+
+                return model;
+            }
+        }
+
+        //similar logic
+        public PersonModel CreatePerson(PersonModel model)
+        {
+            using (IDbConnection connection = new System.Data.SqlClient.SqlConnection(GlobalConfig.CnnString("Tournaments")))
+            {
+
+                var p = new DynamicParameters();
+                p.Add("@FirstName", model.FirstName);
+                p.Add("@LastName", model.LastName);
+                p.Add("@EmailAddress", model.EmailAddress);
+                p.Add("@CellphoneNumber", model.CellphoneNumber);
+                p.Add("@id", 0, dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+
+                connection.Execute("dbo.spPeople_Insert", p, commandType: CommandType.StoredProcedure);
 
                 model.Id = p.Get<int>("@id");
 
