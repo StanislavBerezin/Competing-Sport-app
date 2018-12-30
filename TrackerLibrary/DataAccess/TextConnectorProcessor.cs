@@ -93,6 +93,47 @@ namespace TrackerLibrary.DataAccess.TextHelpers
             return output;
         }
 
+        public static List<TeamModel> ConvertToTeamModels(this List<string> lines, string peopleFileName)
+        {
+            List<TeamModel> Output = new List<TeamModel>();
+            List<PersonModel> people = peopleFileName.FullFilePath().LoadFile().ConvertToPersonModels();
+
+            foreach (string line in lines)
+            {
+                string[] cols = line.Split(',');
+
+                TeamModel t = new TeamModel();
+
+                t.Id = int.Parse(cols[0]);
+                t.TeamName = cols[1];
+
+                string[] personIds = cols[2].Split('|');
+
+                //Take the list of people in the text file and search for it and filter WHERE the id of the person
+                //in the list equals the id from the collection of person in the "TeamMemers" List, binded with the team
+                foreach (string id in personIds)
+                {
+                    t.TeamMembers.Add(people.Where(x => x.Id == int.Parse(id)).First());
+                }
+
+                Output.Add(t);
+            }
+            return Output;
+        }
+
+        public static void SaveToTeamFile(this List<TeamModel> models, string FileName)
+        {
+            List<string> lines = new List<string>();
+
+            foreach (TeamModel t in models)
+            {
+                lines.Add($"{ t.Id },{ t.TeamName },{ ConvertPeopleListToString(t.TeamMembers) }");
+            }
+
+            File.WriteAllLines(FileName.FullFilePath(), lines);
+
+        }
+
         public static void SaveToPrizeFile(this List<PrizeModel> models, string fileName)
         {
             //list of strings for lines
@@ -121,6 +162,27 @@ namespace TrackerLibrary.DataAccess.TextHelpers
 
             File.WriteAllLines(fileName.FullFilePath(), lines);
 
+        }
+
+
+        private static string ConvertPeopleListToString(List<PersonModel> People)
+        {
+            string output = "";
+
+            if (People.Count == 0)
+            {
+                return "";
+            }
+
+            foreach (PersonModel p in People)
+            {
+                output += $"{ p.Id }|";
+            }
+
+            //Removes the pipe character to the end of the list of people's id
+            output = output.Substring(0, output.Length - 1);
+
+            return output;
         }
     }
 }
