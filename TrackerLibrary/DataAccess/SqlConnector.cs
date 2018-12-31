@@ -12,7 +12,7 @@ namespace TrackerLibrary.DataAccess
 {
     //Interface is like a contract, forces to make a method from its interface declaration
 
-    public class SqlConnector : IDataConnection
+    public class SqlConnector : SqlHelper, IDataConnection
     {
 
         private const string db = "Tournaments";
@@ -103,7 +103,20 @@ namespace TrackerLibrary.DataAccess
             }
         }
 
-   
+        public void CreateTournament(TournamentModel model)
+        {
+            using (IDbConnection connection = new System.Data.SqlClient.SqlConnection(GlobalConfig.CnnString(db)))
+            {
+                SqlHelper sqlHelper = new SqlHelper();
+
+                sqlHelper.SaveTournament(connection, model);
+
+                sqlHelper.SaveTournamentPrizes(connection, model);
+
+                sqlHelper.SaveTournamentEntries(connection, model);
+            }
+        }
+
         /// <summary>
         /// querying the database to return all persons
         /// </summary>
@@ -139,6 +152,8 @@ namespace TrackerLibrary.DataAccess
 
             return output;
         }
+
+       
     }
     
 }

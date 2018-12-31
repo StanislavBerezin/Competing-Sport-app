@@ -16,6 +16,7 @@ namespace TrackerLibrary.DataAccess
         private const string PrizesFile = "PrizeModels.csv";
         private const string PeopleFile = "PersonModels.csv";
         private const string TeamFile = "TeamModels.csv";
+        private const string TournamentFile = "TournamentModels.csv";
 
         //basically its a public method of type PrizeModel who should return the model (object)
         /// <summary>
@@ -97,6 +98,26 @@ namespace TrackerLibrary.DataAccess
 
             return model;
         }
+        public void CreateTournament(TournamentModel model)
+        {
+            List<TournamentModel> tournaments = TournamentFile.
+              FullFilePath().
+              LoadFile().
+              ConvertToTournamentModels(TeamFile, PeopleFile, PrizesFile);
+
+            int CurrentId = 1;
+
+            if (tournaments.Count > 0)
+            {
+                CurrentId = tournaments.OrderByDescending(x => x.Id).First().Id + 1;
+            }
+
+            model.Id = CurrentId;
+
+            tournaments.Add(model);
+
+            tournaments.SaveTournamentFile(TournamentFile);
+        }
 
         public List<PersonModel> GetPerson_All()
         {
@@ -107,5 +128,7 @@ namespace TrackerLibrary.DataAccess
         {
             return TeamFile.FullFilePath().LoadFile().ConvertToTeamModels(PeopleFile);
         }
+
+        
     }
 }

@@ -13,9 +13,11 @@ namespace TrackerLibrary.DataAcess
         //1) The reason we return models, because of their ID's for SQL
         PrizeModel CreatePrize(PrizeModel model);
         PersonModel CreatePerson(PersonModel model);
+        TeamModel CreateTeam(TeamModel model);
+        void CreateTournament(TournamentModel model);
         List<PersonModel> GetPerson_All();
         List<TeamModel> GetTeam_All();
-        TeamModel CreateTeam(TeamModel model);
+       
 
     }
 }
