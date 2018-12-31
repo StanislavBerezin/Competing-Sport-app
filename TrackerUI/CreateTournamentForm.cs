@@ -7,15 +7,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using TrackerLibrary;
 using TrackerLibrary.Models;
+using TrackerLibrary;
 
 namespace TrackerUI
 {
-    public partial class CreateTournamentForm : Form, IPrizeRequester, ITeamRequestor
+    public partial class CreateTournamentForm : Form, IPrizeRequester, ITeamRequester
     {
         List<TeamModel> availableTeams = GlobalConfig.Connection.GetTeam_All();
-        List<TeamModel> selectedTeam = new List<TeamModel>();
+        List<TeamModel> selectedTeams = new List<TeamModel>();
         List<PrizeModel> selectedPrizes = new List<PrizeModel>();
 
         public CreateTournamentForm()
@@ -31,7 +31,7 @@ namespace TrackerUI
             selectTeamDropDown.DisplayMember = "TeamName";
 
             tournamentTeamsListBox.DataSource = null;
-            tournamentTeamsListBox.DataSource = selectedTeam;
+            tournamentTeamsListBox.DataSource = selectedTeams;
             tournamentTeamsListBox.DisplayMember = "TeamName";
 
             prizesListBox.DataSource = null;
@@ -46,21 +46,39 @@ namespace TrackerUI
             if (t != null)
             {
                 availableTeams.Remove(t);
-                selectedTeam.Add(t);
-                WireUpLists();
+                selectedTeams.Add(t);
 
+                WireUpLists();
             }
         }
 
         private void createPrizeButton_Click(object sender, EventArgs e)
         {
-            //we can add this, because CreatePrizeForm has a parameter for caller, and this
-            //refers to this form which has an interface of IPrizeRequester with method prizeComplete
-            //which CreatePrizeForm is aware of due to interface
+            // Call the CreatePrizeForm
             CreatePrizeForm frm = new CreatePrizeForm(this);
-            frm.ShowDialog();
-            //frmCreatePrize frm = new frmCreatePrize(this);
-            //frm.ShowDialog(); 
+            frm.Show();
+        }
+
+        public void PrizeComplete(PrizeModel model)
+        {
+            // Get back from the form a PrizeModel
+            // Take the PrizeModel and put it into our list of selected prizes
+            selectedPrizes.Add(model);
+
+            WireUpLists();
+        }
+
+        private void createNewTeamLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            CreateTeamForm frm = new CreateTeamForm(this);
+            frm.Show();
+        }
+
+        public void TeamComplete(TeamModel model)
+        {
+            selectedTeams.Add(model);
+
+            WireUpLists();
         }
 
         private void removeSelectedPlayerButton_Click(object sender, EventArgs e)
@@ -69,31 +87,12 @@ namespace TrackerUI
 
             if (t != null)
             {
-                selectedTeam.Remove(t);
+                selectedTeams.Remove(t);
                 availableTeams.Add(t);
+
+                WireUpLists();
             }
 
-            WireUpLists();
-        }
-
-
-        //This is from interface
-        public void PrizeComplete(PrizeModel model)
-        {
-            selectedPrizes.Add(model);
-            WireUpLists();
-        }
-
-        public void TeamComplete(TeamModel model)
-        {
-            selectedTeam.Add(model);
-            WireUpLists();
-        }
-
-        private void createNewTeamLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            CreateTeamForm frm = new CreateTeamForm(this);
-            frm.ShowDialog();
         }
 
         private void removeSelectedPrizeButton_Click(object sender, EventArgs e)
@@ -103,44 +102,47 @@ namespace TrackerUI
             if (p != null)
             {
                 selectedPrizes.Remove(p);
-            }
 
-            WireUpLists();
+                WireUpLists();
+            }
         }
 
         private void createTournamentButton_Click(object sender, EventArgs e)
         {
-            //Validate data
+            // Validate data
             decimal fee = 0;
-            //tryParse is an important element for checking values
             bool feeAcceptable = decimal.TryParse(entryFeeValue.Text, out fee);
 
             if (!feeAcceptable)
             {
-                MessageBox.Show("You need to enter a valid Entry Fee", 
+                MessageBox.Show("You need to enter a valid Entry Fee.",
                     "Invalid Fee",
-                    MessageBoxButtons.OK, 
+                    MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
-                entryFeeValue.Focus();
+
                 return;
             }
 
-            //Create tournament model
             TournamentModel tm = new TournamentModel();
 
             tm.TournamentName = tournamentNameValue.Text;
             tm.EntryFee = fee;
-
             tm.Prizes = selectedPrizes;
-            tm.EnteredTeams = selectedTeam;
+            tm.EnteredTeams = selectedTeams;
 
-            //Wire our matchups
+            // Wire our matchups
             TournamentLogic.CreateRounds(tm);
 
-            //Create tournament Entry
-            //Create all of the prizes entries
-            //create all of team entries
+            // Create Tournament entry
+            // Create all of the prizes entries
+            // Create all of the team entrie
             GlobalConfig.Connection.CreateTournament(tm);
+
+            tm.AlertUsersToNewRound();
+
+            TournamentViewerForm frm = new TournamentViewerForm(tm);
+            frm.Show();
+            this.Close();
         }
     }
 }

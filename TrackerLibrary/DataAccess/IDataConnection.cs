@@ -5,19 +5,18 @@ using System.Text;
 using System.Threading.Tasks;
 using TrackerLibrary.Models;
 
-namespace TrackerLibrary.DataAcess
+namespace TrackerLibrary.DataAccess
 {
     public interface IDataConnection
     {
-        //Briefly:
-        //1) The reason we return models, because of their ID's for SQL
-        PrizeModel CreatePrize(PrizeModel model);
-        PersonModel CreatePerson(PersonModel model);
-        TeamModel CreateTeam(TeamModel model);
+        void CreatePrize(PrizeModel model);
+        void CreatePerson(PersonModel model);
+        void CreateTeam(TeamModel model);
         void CreateTournament(TournamentModel model);
+        void UpdateMatchup(MatchupModel model);
+        void CompleteTournament(TournamentModel model);
         List<PersonModel> GetPerson_All();
         List<TeamModel> GetTeam_All();
-       
-
+        List<TournamentModel> GetTournament_All();
     }
 }

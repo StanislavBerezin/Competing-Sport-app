@@ -7,8 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using TrackerLibrary;
 using TrackerLibrary.Models;
+using TrackerLibrary;
 
 namespace TrackerUI
 {
@@ -16,126 +16,94 @@ namespace TrackerUI
     {
         private List<PersonModel> availableTeamMembers = GlobalConfig.Connection.GetPerson_All();
         private List<PersonModel> selectedTeamMembers = new List<PersonModel>();
-        private ITeamRequestor callingForm;
-        
-        public CreateTeamForm(ITeamRequestor caller)
+        private ITeamRequester callingForm;
+
+        public CreateTeamForm(ITeamRequester caller)
         {
             InitializeComponent();
+
             callingForm = caller;
-            //CreateSampleData();
-            WireUpLists();
+
+            WireUpList();
         }
 
-     
-        //Dummy data to check if it works
-        private void CreateSampleData()
+    
+        private void WireUpList()
         {
-            availableTeamMembers.Add(new PersonModel { FirstName = "Henrique", LastName = "Martins" });
-            availableTeamMembers.Add(new PersonModel { FirstName = "Vitor", LastName = "França" });
-
-            selectedTeamMembers.Add(new PersonModel { FirstName = "Marie", LastName = "Martins" });
-            selectedTeamMembers.Add(new PersonModel { FirstName = "Keyt", LastName = "Martins" });
-
-        }
-
-        private void WireUpLists()
-        {
-            //It makes the bind actually work and refresh the data
             selectTeamMemberDropDown.DataSource = null;
-
-            //DataSOurce is basically the object that will feed the drop down
             selectTeamMemberDropDown.DataSource = availableTeamMembers;
-            //DisplayMember is for the property we wish to display
             selectTeamMemberDropDown.DisplayMember = "FullName";
-            selectTeamMemberDropDown.Refresh();
 
-            //It makes the bind actually work and refresh the data
             teamMembersListBox.DataSource = null;
-
             teamMembersListBox.DataSource = selectedTeamMembers;
             teamMembersListBox.DisplayMember = "FullName";
-
-            //so that it refreshes when we add and remove
-            teamMembersListBox.Refresh();
         }
 
         private void createMemberButton_Click(object sender, EventArgs e)
         {
-            if (ValidateForm())
+            if (ValidateMemberForm())
             {
-                //creating a model
                 PersonModel p = new PersonModel();
-                //puting values in that model
 
                 p.FirstName = firstNameValue.Text;
                 p.LastName = lastNameValue.Text;
                 p.EmailAddress = emailValue.Text;
                 p.CellphoneNumber = cellphoneValue.Text;
-                
-                //executing connection for creating a person and then inserting that person into the box
 
                 GlobalConfig.Connection.CreatePerson(p);
 
-                
-
                 selectedTeamMembers.Add(p);
+                WireUpList();
 
-                WireUpLists();
                 firstNameValue.Text = "";
                 lastNameValue.Text = "";
                 emailValue.Text = "";
                 cellphoneValue.Text = "";
-                if (p.Id != 0)
-                {
-                    MessageBox.Show("Member Sucessfully created!", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                }
             }
             else
             {
-                MessageBox.Show("You need to fill in all of the fields");
+                MessageBox.Show("You need to fill in all of the fields.");
             }
         }
 
-        //can put stronger validation, at the moment we just check to see if fields are blanked
-        private bool ValidateForm()
+        private bool ValidateMemberForm()
         {
-            // TODO - Add validation to the form
-            if (firstNameValue.Text.Length == 0)
+            bool output = true;
+
+            if (string.IsNullOrWhiteSpace(firstNameValue.Text))
             {
-                return false;
+                output = false;
             }
 
-            if (lastNameValue.Text.Length == 0)
+            if (string.IsNullOrWhiteSpace(lastNameValue.Text))
             {
-                return false;
+                output = false;
             }
 
-            if (emailValue.Text.Length == 0)
+            if (string.IsNullOrWhiteSpace(emailValue.Text))
             {
-                return false;
+                output = false;
             }
 
-            if (cellphoneValue.Text.Length == 0)
+            if (string.IsNullOrWhiteSpace(cellphoneValue.Text))
             {
-                return false;
+                output = false;
             }
-            return true;
+
+            return output;
         }
 
         private void addMemberButton_Click(object sender, EventArgs e)
         {
-            //selectedItem is for the chosen person, and based on that we create a personModel
             PersonModel p = (PersonModel)selectTeamMemberDropDown.SelectedItem;
 
             if (p != null)
             {
-                //we remove from available and add to selected
                 availableTeamMembers.Remove(p);
                 selectedTeamMembers.Add(p);
+
+                WireUpList(); 
             }
-            //then doing a cleanup
-            WireUpLists();
         }
 
         private void removeSelectedMemberButton_Click(object sender, EventArgs e)
@@ -146,26 +114,41 @@ namespace TrackerUI
             {
                 selectedTeamMembers.Remove(p);
                 availableTeamMembers.Add(p);
-            }
 
-            WireUpLists();
+                WireUpList(); 
+            }
         }
 
         private void createTeamButton_Click(object sender, EventArgs e)
         {
-            TeamModel t = new TeamModel
+            if (ValidateTeamNameForm())
             {
-                TeamName = teamNameValue.Text,
-                TeamMembers = selectedTeamMembers
-            };
+                TeamModel t = new TeamModel();
 
-            GlobalConfig.Connection.CreateTeam(t);
+                t.TeamName = teamNameValue.Text;
+                t.TeamMembers = selectedTeamMembers;
 
-            callingForm.TeamComplete(t);
+                GlobalConfig.Connection.CreateTeam(t);
 
-            MessageBox.Show("Team sucessfully created!", "Team Created", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                callingForm.TeamComplete(t);
+                this.Close();
+            }
+            else
+            {
+                MessageBox.Show("The name should not be empty. Please check it and try again.");
+            }
+        }
 
-            this.Close();
+        private bool ValidateTeamNameForm()
+        {
+            bool output = true;
+
+            if (string.IsNullOrWhiteSpace(teamNameValue.Text))
+            {
+                output = false;
+            }
+
+            return output;
         }
     }
 }

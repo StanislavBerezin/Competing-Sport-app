@@ -9,66 +9,55 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using TrackerLibrary;
 using TrackerLibrary.Models;
+using TrackerLibrary.DataAccess;
 
 namespace TrackerUI
 {
     public partial class CreatePrizeForm : Form
     {
-        IPrizeRequester callingForm;
+        private IPrizeRequester callingForm;
 
         public CreatePrizeForm(IPrizeRequester caller)
         {
             InitializeComponent();
+
             callingForm = caller;
         }
 
-        private void addPrizeButton_Click(object sender, EventArgs e)
+        private void createPrizeButton_Click(object sender, EventArgs e)
         {
-
             if (ValidateForm())
             {
-                //creating a prize model and putting the information from there
                 PrizeModel model = new PrizeModel(
-                    placeNameValue.Text,
                     placeNumberValue.Text,
+                    placeNameValue.Text,
                     prizeAmountValue.Text,
                     prizePercentageValue.Text);
 
-                //because Connection has a contract with interface IData which contain CreatePrize
-                //allows us to have this.
                 GlobalConfig.Connection.CreatePrize(model);
 
-                //because we make an instance of IPrizeRequester calling form, which has a method PrizeComplete
-                //that accepts prizeModel, we can pass it through
                 callingForm.PrizeComplete(model);
-
                 this.Close();
-                //Clear form of previous inputs
-                placeNameValue.Text = "";
-                placeNumberValue.Text = "";
-                prizeAmountValue.Text = "0";
-                prizePercentageValue.Text = "0";
+
+                //placeNumberValue.Text = "";
+                //placeNameValue.Text = "";
+                //prizeAmountValue.Text = "0";
+                //prizePercentageValue.Text = "0";
             }
             else
             {
                 MessageBox.Show("This form has invalid information. Please check it and try again.");
             }
-
         }
 
         private bool ValidateForm()
         {
-            //initialy output (what user entered is ok, then it passess a number of checks)
             bool output = true;
             int placeNumber = 0;
-            //checking if there is a valid number
-            bool placeNumberValidNumber = int.TryParse(placeNumberValue.Text, out placeNumber);
+            bool placeNumberValid = int.TryParse(placeNumberValue.Text, out placeNumber);
 
-            //if anything fails then output is false and we return output at the end
-
-            if (placeNumberValidNumber == false)
+            if (!placeNumberValid)
             {
-                MessageBox.Show("Not a valid place number value.");
                 output = false;
             }
 
@@ -77,23 +66,22 @@ namespace TrackerUI
                 output = false;
             }
 
-            if (placeNameValue.Text.Length == 0)
+            if (String.IsNullOrWhiteSpace(placeNameValue.Text))
             {
                 output = false;
             }
 
             decimal prizeAmount = 0;
-            double prizePercentage = 0;
-
             bool prizeAmountValid = decimal.TryParse(prizeAmountValue.Text, out prizeAmount);
+            double prizePercentage = 0;
             bool prizePercentageValid = double.TryParse(prizePercentageValue.Text, out prizePercentage);
 
-            if (prizeAmountValid == false || prizePercentageValid == false)
+            if (!prizeAmountValid || !prizePercentageValid)
             {
                 output = false;
             }
 
-            if (prizeAmount < 0 && prizePercentage <= 0)
+            if (prizeAmount <= 0 && prizePercentage <= 0)
             {
                 output = false;
             }
@@ -107,4 +95,3 @@ namespace TrackerUI
         }
     }
 }
-

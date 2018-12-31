@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TrackerLibrary.Models;
 
-namespace TrackerUI
+namespace TrackerLibrary
 {
-    public interface ITeamRequestor
+    public class EntryFeeValidationRule
     {
-        void TeamComplete(TeamModel model);
+        
     }
 }
