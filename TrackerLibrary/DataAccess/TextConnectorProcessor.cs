@@ -157,18 +157,38 @@ namespace TrackerLibrary.DataAccess.TextHelpers
                 tm.TournamentName = cols[1];
                 tm.EntryFee = decimal.Parse(cols[2]);
 
-                string[] teamIds = cols[3].Split('|');
-
-                foreach (string id in teamIds)
+                if (cols[3].Length > 0)
                 {
-                    tm.EnteredTeams.Add(teams.Where(x => x.Id == int.Parse(id)).First());
+                    string[] teamIds = cols[3].Split('|');
+                    foreach (string id in teamIds)
+                    {
+                        tm.EnteredTeams.Add(teams.Where(x => x.Id == int.Parse(id)).First());
+
+                    }
                 }
 
-                string[] prizeIds = cols[4].Split('|');
-
-                foreach (string id in prizeIds)
+                if (cols[4].Length > 0)
                 {
-                    tm.Prizes.Add(prizes.Where(x => x.Id == int.Parse(id)).First());
+                    string[] prizeIds = cols[4].Split('|');
+                    foreach (string id in prizeIds)
+                    {
+                        tm.Prizes.Add(prizes.Where(x => x.Id == int.Parse(id)).First());
+                    }
+                }
+
+                string[] rounds = cols[5].Split('|');
+
+                foreach (string round in rounds)
+                {
+                    string[] msText = round.Split('^');
+                    List<MatchupModel> ms = new List<MatchupModel>();
+
+                    foreach (string matchupModelTextId in msText)
+                    {
+                        ms.Add(matchups.Where(x => x.Id == int.Parse(matchupModelTextId)).First());
+                    }
+
+                    tm.Rounds.Add(ms);
                 }
 
                 // TODO - Capture rounds information

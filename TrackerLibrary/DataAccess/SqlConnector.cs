@@ -114,6 +114,8 @@ namespace TrackerLibrary.DataAccess
                 sqlHelper.SaveTournamentPrizes(connection, model);
 
                 sqlHelper.SaveTournamentEntries(connection, model);
+
+                sqlHelper.SaveTournamentRounds(connection, model);
             }
         }
 
