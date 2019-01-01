@@ -9,9 +9,9 @@ using TrackerLibrary.Models;
 
 namespace TrackerLibrary.DataAccess
 {
-    public class SqlHelper
+    public static class SqlHelper
     {
-        internal void SaveTournament(IDbConnection connection, TournamentModel model)
+        internal static void SaveTournament(IDbConnection connection, TournamentModel model)
         {
             var p = new DynamicParameters();
             p.Add("TournamentName", model.TournamentName);
@@ -22,7 +22,7 @@ namespace TrackerLibrary.DataAccess
             model.Id = p.Get<int>("id");
         }
 
-        internal void SaveTournamentPrizes(IDbConnection connection, TournamentModel model)
+        internal static void SaveTournamentPrizes(IDbConnection connection, TournamentModel model)
         {
             foreach (PrizeModel pz in model.Prizes)
             {
@@ -35,7 +35,7 @@ namespace TrackerLibrary.DataAccess
             }
         }
 
-        internal void SaveTournamentEntries(IDbConnection connection, TournamentModel model)
+        internal static void SaveTournamentEntries(IDbConnection connection, TournamentModel model)
         {
             foreach (TeamModel tm in model.EnteredTeams)
             {
@@ -48,7 +48,7 @@ namespace TrackerLibrary.DataAccess
             }
         }
 
-        internal void SaveTournamentRounds(IDbConnection connection, TournamentModel model)
+        internal static void SaveTournamentRounds(IDbConnection connection, TournamentModel model)
         {
             // List<List<MatchupModel>> Rounds
             // List<MatchupEntryModel> Entries

@@ -109,16 +109,16 @@ namespace TrackerLibrary.DataAccess
         {
             using (IDbConnection connection = new MySqlConnection(GlobalConfig.ConnString(db)))
             {
-                SqlHelper tour = new SqlHelper();
 
-                
-                tour.SaveTournament(connection, model);
 
-                tour.SaveTournamentPrizes(connection, model);
 
-                tour.SaveTournamentEntries(connection, model);
+                SaveTournament(connection, model);
 
-                tour.SaveTournamentRounds(connection, model);
+                SaveTournamentPrizes(connection, model);
+
+                SaveTournamentEntries(connection, model);
+
+                SaveTournamentRounds(connection, model);
 
                 TournamentLogic.UpdateTournamentResults(model);
             }
