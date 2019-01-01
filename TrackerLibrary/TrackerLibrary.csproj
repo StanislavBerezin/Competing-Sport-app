@@ -59,6 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataAccess\MySqlConnector.cs" />
+    <Compile Include="DataAccess\SqlHelper.cs" />
     <Compile Include="DataAccess\TextConnectorProcessor.cs" />
     <Compile Include="EmailLogic.cs" />
     <Compile Include="EntryFeeValidationRule.cs" />
